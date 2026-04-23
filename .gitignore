@@ -6,24 +6,21 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-
 # Virtual environments
 .venv/
 venv/
-
 # Tooling
 .coverage
 htmlcov/
-
 # Local env
 .env
 logs/
 data/raw/
 data/interim/
 data/processed/
-
-.vscode/
+.vscode
 .idea/
 .DS_Store
 .devcontainer/
 .vscode/
+.devcontainer
