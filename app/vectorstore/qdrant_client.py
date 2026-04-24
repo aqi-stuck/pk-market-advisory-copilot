@@ -12,7 +12,7 @@ def get_qdrant_client() -> QdrantClient:
     return QdrantClient(url=settings.QDRANT_URL, api_key=settings.QDRANT_API_KEY)
 
 
-def ensure_collection(vector_size: int = 64) -> None:
+def ensure_collection(vector_size: int = 1536) -> None:
     client = get_qdrant_client()
     collections = client.get_collections().collections
 
@@ -52,8 +52,9 @@ def search_similar(vector: List[float], limit: int = 5):
     ensure_collection(vector_size=len(vector))
     client = get_qdrant_client()
 
-    return client.search(
+    results = client.query_points(
         collection_name=QDRANT_COLLECTION,
-        query_vector=vector,
+        query=vector,
         limit=limit,
     )
+    return results.points

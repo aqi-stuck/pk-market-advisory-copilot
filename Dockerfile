@@ -9,18 +9,12 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-RUN pip install poetry==1.7.1 poetry-plugin-export
+RUN pip install --upgrade pip
 
-COPY pyproject.toml ./
-
-RUN poetry config virtualenvs.create false \
-    && poetry lock --no-update 2>/dev/null || true \
-    && poetry install --no-interaction --no-root
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
-
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction
 
 EXPOSE 8000
 

@@ -1,17 +1,11 @@
-from typing import List
-
+from openai import AzureOpenAI
 from app.core.config import settings
 
-
-def simple_embedding(text: str, dimensions: int = 64) -> List[float]:
-    """
-    Temporary lightweight embedding for development.
-    Replace with OpenAI or another embedding model later.
-    """
-    text = (text or "").strip().lower()
-    vector = [0.0] * dimensions
-
-    for index, char in enumerate(text):
-        vector[index % dimensions] += (ord(char) % 31) / 31.0
-
-    return vector
+def embed_text(text: str) -> list[float]:
+    client = AzureOpenAI(
+        api_key=settings.AZURE_OPENAI_API_KEY,
+        azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
+        api_version=settings.AZURE_OPENAI_API_VERSION,
+    )
+    response = client.embeddings.create(input=text, model=settings.AZURE_EMBEDDING_DEPLOYMENT)
+    return response.data[0].embedding

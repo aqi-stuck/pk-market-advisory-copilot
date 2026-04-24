@@ -7,6 +7,12 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "US Market Advisory RAG System"
     VERSION: str = "0.1.0"
     DESCRIPTION: str = "A RAG system for providing insights on US financial markets"
+    AZURE_OPENAI_API_KEY: Optional[str] = None
+    AZURE_OPENAI_ENDPOINT: Optional[str] = None
+    AZURE_OPENAI_API_VERSION: str = "2024-02-01"
+    AZURE_EMBEDDING_DEPLOYMENT: str = "text-embedding-3-small"
+    EMBEDDING_DIMENSIONS: int = 1536
+
 
     # Database settings
     DATABASE_URL: str = "postgresql://user:password@localhost:5432/market_advisory_db"

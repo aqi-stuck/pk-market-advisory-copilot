@@ -1,11 +1,11 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from uuid import uuid5, NAMESPACE_URL
+from uuid import uuid4
 
 from app.core.config import settings
 from app.data.preprocess.chunking import chunk_text
-from app.llm.embeddings import simple_embedding
+from app.llm.embeddings import embed_text
 from app.db.models import Chunk, Document, IngestionRun
 from app.db.session import SessionLocal
 from app.vectorstore.qdrant_client import upsert_points
@@ -66,8 +66,8 @@ def main() -> None:
             )
 
             for idx, text_part in enumerate(chunks):
-                point_id = str(uuid5(NAMESPACE_URL, f"{run.id}-{doc.id}-{idx}"))
-                vector = simple_embedding(text_part)
+                point_id = str(uuid4())
+                vector = embed_text(text_part)
 
                 db.add(
                     Chunk(
@@ -75,7 +75,7 @@ def main() -> None:
                         chunk_index=idx,
                         chunk_text=text_part,
                         qdrant_point_id=point_id,
-                        embedding_model="simple_embedding",
+                        embedding_model=settings.AZURE_EMBEDDING_DEPLOYMENT,
                         extra_metadata={"lane": doc.lane},
                     )
                 )

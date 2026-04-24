@@ -30,7 +30,6 @@ langchain-community = "^0.0.38"
 langchain-core = "^0.1.12"
 langchain-openai = "^0.0.5"
 langchain-text-splitters = "^0.0.1"
-
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"
 pytest-asyncio = "^0.21.1"
