@@ -2,8 +2,8 @@ import streamlit as st
 import requests
 
 # ── Config ────────────────────────────────────────────────────────────────────
-API_URL = "http://localhost:8000"
-API_KEY = "change-me"  # match your .env API_KEY
+API_URL = st.secrets.get("API_URL", "http://localhost:8000")
+API_KEY = st.secrets.get("API_KEY", "change-me")
 
 HEADERS = {
     "Content-Type": "application/json",

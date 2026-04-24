@@ -14,6 +14,7 @@ venv/
 htmlcov/
 # Local env
 .env
+.streamlit/secrets.toml
 logs/
 data/raw/
 data/interim/
