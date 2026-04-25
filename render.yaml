@@ -2,7 +2,7 @@ services:
   - type: web
     name: market-advisory-api
     runtime: docker
-    repo: https://github.com/aqi-stuck/US-market-advisory-copilot # Update this to your repo URL
+    repo: https://github.com/aqi-stuck/US-market-advisory-copilot
     plan: free
     region: oregon # Choose your preferred region
     envVars:
