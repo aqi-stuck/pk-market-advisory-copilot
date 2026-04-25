@@ -11,7 +11,7 @@ import logging
 from fastapi import Request
 from app.core.logging import setup_logging
 from app.mcp_server import mcp
-from mcp.server.fastmcp.asgi import make_asgi_app
+from mcp.server.asgi import make_asgi_app
 
 setup_logging()
 logger = logging.getLogger("app")
