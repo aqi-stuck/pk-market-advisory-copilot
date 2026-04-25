@@ -162,7 +162,6 @@ def main() -> None:
 if __name__ == "__main__":
     import sys
 
-    # Ensure logs are visible in the terminal
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",

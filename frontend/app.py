@@ -2,9 +2,22 @@ import streamlit as st
 import requests
 import os
 
+
 # ── Config ────────────────────────────────────────────────────────────────────
-API_URL = os.environ.get("API_URL", st.secrets.get("API_URL", "http://localhost:8000"))
-API_KEY = os.environ.get("API_KEY", st.secrets.get("API_KEY", "change-me"))
+def load_config(key, default):
+    # Priority 1: Environment Variables (e.g., Docker Compose)
+    if key in os.environ:
+        return os.environ[key]
+    # Priority 2: Streamlit Secrets (e.g., Streamlit Cloud or local secrets.toml)
+    try:
+        return st.secrets.get(key, default)
+    except Exception:
+        # Fallback to hardcoded default if secrets are unavailable
+        return default
+
+
+API_URL = load_config("API_URL", "http://localhost:8000")
+API_KEY = load_config("API_KEY", "change-me")
 
 HEADERS = {
     "Content-Type": "application/json",
