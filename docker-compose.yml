@@ -7,6 +7,11 @@ services:
       - DATABASE_URL=postgresql://user:password@postgres:5432/market_advisory_db
       - QDRANT_URL=http://qdrant:6333
       - LOG_LEVEL=INFO
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - GITHUB_CHAT_MODEL_NAME=gpt-4o-mini
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
+      - API_KEY=${API_KEY}
     depends_on:
       - postgres
       - qdrant
@@ -56,15 +61,17 @@ services:
   frontend:
     image: python:3.11-slim
     working_dir: /app
-    command: bash -c "pip install -q streamlit requests && streamlit run app.py --server.port=8501 --server.address=0.0.0.0"
+    command: streamlit run app.py --server.port=8501 --server.address=0.0.0.0
     ports:
       - "8501:8501"
+    environment:
+      - BACKEND_URL=http://api:8000
+      - API_KEY=${API_KEY}
     volumes:
       - ./frontend:/app
     depends_on:
       - api
     restart: unless-stopped
-
 volumes:
   postgres_data:
   qdrant_data:
