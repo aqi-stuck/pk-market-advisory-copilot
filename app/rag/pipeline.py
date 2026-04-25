@@ -16,8 +16,8 @@ Do not speculate beyond what the context supports."""
 
 def _get_client() -> OpenAI:
     return OpenAI(
-        base_url="https://models.inference.ai.azure.com",
-        api_key=settings.GITHUB_TOKEN,
+        base_url=settings.AZURE_OPENAI_ENDPOINT,  # Use the configured Azure endpoint
+        api_key=settings.AZURE_OPENAI_API_KEY,  # Use the dedicated Azure API key
     )
 
 
