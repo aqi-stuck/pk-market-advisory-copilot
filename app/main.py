@@ -60,7 +60,6 @@ async def log_requests(request: Request, call_next):
 app.include_router(health_router, tags=["health"])
 app.include_router(query_router, prefix=settings.API_V1_STR, tags=["query"])
 app.include_router(ingest_router, prefix=settings.API_V1_STR, tags=["ingest"])
-app.mount("/mcp", mcp.asgi())
 app.mount("/mcp", make_asgi_app(mcp.server))
 
 if __name__ == "__main__":
