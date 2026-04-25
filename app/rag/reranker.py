@@ -18,10 +18,8 @@ def rerank_chunks(
         return chunks
 
     scored = []
-    client = get_chat_client()
     try:
-        # If client initialization fails, it will be caught here
-        pass
+        client = get_chat_client()
     except Exception:
         return chunks  # Fallback to original order if client fails
 

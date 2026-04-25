@@ -48,8 +48,8 @@ def run_pipeline(
     context = "\n\n".join(context_parts)
 
     # 5. Generate answer
-    client = get_chat_client()
     try:
+        client = get_chat_client()
         response = client.chat.completions.create(
             model=settings.CHAT_MODEL_NAME,
             messages=[
