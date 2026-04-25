@@ -23,11 +23,11 @@ services:
       - ./logs:/app/logs
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 90s
+      start_period: 120s
 
   postgres:
     image: postgres:15-alpine
@@ -57,9 +57,9 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: python:3.11-slim
-    working_dir: /app
-    command: bash -c "pip install --no-cache-dir streamlit requests && streamlit run app.py --server.port=8501 --server.address=0.0.0.0"
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "8501:8501"
     environment:

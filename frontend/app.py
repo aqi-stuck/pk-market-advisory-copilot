@@ -4,7 +4,7 @@ import os
 
 # ── Config ────────────────────────────────────────────────────────────────────
 API_URL = os.environ.get("API_URL", st.secrets.get("API_URL", "http://localhost:8000"))
-API_KEY = st.secrets.get("API_KEY", "change-me")
+API_KEY = os.environ.get("API_KEY", st.secrets.get("API_KEY", "change-me"))
 
 HEADERS = {
     "Content-Type": "application/json",
