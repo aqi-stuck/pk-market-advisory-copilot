@@ -27,12 +27,18 @@ async def health_check():
         engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
-    except SQLAlchemyError:
+        engine.dispose()
+    except Exception:
         db_status = "error"
 
     try:
-        response = requests.get(f"{settings.QDRANT_URL}/health", timeout=3)
-        response.raise_for_status()
+        qdrant_url = settings.QDRANT_URL.rstrip("/")
+        if not qdrant_url.startswith("http"):
+            qdrant_url = f"http://{qdrant_url}"
+
+        response = requests.get(f"{qdrant_url}/health", timeout=3)
+        if response.status_code != 200:
+            vectorstore_status = "error"
     except requests.RequestException:
         vectorstore_status = "error"
 
