@@ -10,9 +10,13 @@ GITHUB_TOKEN = "${{Secrets.GITHUB_TOKEN}}"
 AZURE_OPENAI_API_KEY = "${{Secrets.AZURE_OPENAI_API_KEY}}"
 AZURE_OPENAI_ENDPOINT = "${{Secrets.AZURE_OPENAI_ENDPOINT}}"
 ENVIRONMENT = "production"
+# NOTE: DATABASE_URL, QDRANT_URL, and Secrets should be linked via the 
+# Railway Dashboard 'Variables' tab to avoid service name mismatch errors.
 
 [deploy]
 startCommand = "/bin/sh -c 'alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT'"
+startCommand = "sleep 5 && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
 healthcheckPath = "/health"
 healthcheckTimeout = 60
+healthcheckTimeout = 120
 restartPolicyType = "on_failure"
