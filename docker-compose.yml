@@ -13,6 +13,7 @@ services:
       - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT}
       - API_KEY=${API_KEY}
       - PYTHONUNBUFFERED=1
+      - PYTHONPATH=.
     depends_on:
       postgres:
         condition: service_healthy
