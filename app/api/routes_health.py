@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional
 from app.core.config import settings
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 import requests
 
@@ -26,10 +26,10 @@ async def health_check():
     error_details = {}
 
     try:
-        engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
+        from app.db.session import engine
+
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
-        engine.dispose()
     except Exception:
         error_details["database"] = "Could not connect to PostgreSQL"
         db_status = "error"
