@@ -40,7 +40,10 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = os.environ.get("DATABASE_URL", config.get_main_option("sqlalchemy.url"))
+    if url and url.startswith("postgres://"):
+        url = url.replace("postgres://", "postgresql://", 1)
+
     context.configure(
         url=url,
         target_metadata=target_metadata,
