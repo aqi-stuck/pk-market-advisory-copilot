@@ -1,15 +1,15 @@
 from typing import Any, Dict, List
 
-from openai import AzureOpenAI
+from openai import OpenAI
 
 from app.core.config import settings
 
 
-def _get_client() -> AzureOpenAI:
-    return AzureOpenAI(
-        azure_endpoint=settings.AZURE_OPENAI_ENDPOINT,
-        api_key=settings.AZURE_OPENAI_API_KEY,
-        api_version=settings.AZURE_OPENAI_API_VERSION,
+def _get_client() -> OpenAI:
+    """Initializes the OpenAI client for GitHub Models."""
+    return OpenAI(
+        base_url="https://models.inference.ai.azure.com",
+        api_key=settings.GITHUB_TOKEN,
     )
 
 
