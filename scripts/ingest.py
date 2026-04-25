@@ -1,4 +1,5 @@
 import json
+import requests
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
@@ -20,15 +21,38 @@ def parse_datetime(value: str | None):
         return None
 
 
+def fetch_external_market_data() -> list:
+    """
+    Example function to fetch live data.
+    In production, you would replace this with calls to FRED, SEC EDGAR, or News APIs.
+    """
+    # For demonstration, we'll return a sample structure.
+    # You could use requests.get("https://api.example.com/finance").json()
+    return [
+        {
+            "source_name": "Live Feed",
+            "title": f"Market Update - {datetime.now().strftime('%Y-%m-%d')}",
+            "lane": "macro",
+            "raw_text": "The latest macroeconomic data indicates a stabilizing trend in inflation...",
+            "published_at": datetime.utcnow().isoformat(),
+        }
+    ]
+
+
 def main() -> None:
-    project_root = Path(__file__).resolve().parents[1]
-    input_file = project_root / "data" / "raw" / "seed_market_docs.json"
-
-    if not input_file.exists():
-        raise FileNotFoundError(f"Missing input file: {input_file}")
-
-    with input_file.open("r", encoding="utf-8") as f:
-        records = json.load(f)
+    # Logic: If running in production (Cron), try fetching live data.
+    # Otherwise, fallback to the seed file.
+    records = []
+    try:
+        records = fetch_external_market_data()
+        print(f"Fetched {len(records)} live records.")
+    except Exception as e:
+        print(f"Live fetch failed, falling back to seed file: {e}")
+        project_root = Path(__file__).resolve().parents[1]
+        input_file = project_root / "data" / "raw" / "seed_market_docs.json"
+        if input_file.exists():
+            with input_file.open("r", encoding="utf-8") as f:
+                records = json.load(f)
 
     db = SessionLocal()
     run = IngestionRun(
