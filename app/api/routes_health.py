@@ -17,10 +17,6 @@ class HealthResponse(BaseModel):
 
 @router.get("/health", response_model=HealthResponse)
 async def health_check():
-    """
-    Health check endpoint to verify service availability.
-    Now uses a singleton-style engine check to avoid overhead.
-    """
     db_status = "ok"
     vectorstore_status = "ok"
     error_details = {}
@@ -37,7 +33,6 @@ async def health_check():
     try:
         qdrant_url = settings.QDRANT_URL.rstrip("/")
         if not qdrant_url.startswith("http"):
-            # Default to https for cloud endpoints (e.g., .qdrant.io)
             protocol = "https" if ".qdrant.io" in qdrant_url else "http"
             qdrant_url = f"{protocol}://{qdrant_url}"
 

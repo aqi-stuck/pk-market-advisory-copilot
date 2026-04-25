@@ -25,12 +25,6 @@ def parse_datetime(value: str | None):
 
 
 def fetch_external_market_data() -> list:
-    """
-    Example function to fetch live data.
-    In production, you would replace this with calls to FRED, SEC EDGAR, or News APIs.
-    """
-    # For demonstration, we'll return a sample structure.
-    # You could use requests.get("https://api.example.com/finance").json()
     return [
         {
             "source_name": "Live Feed",
@@ -43,8 +37,6 @@ def fetch_external_market_data() -> list:
 
 
 def main() -> None:
-    # Logic: If running in production (Cron), try fetching live data.
-    # Otherwise, fallback to the seed file.
     records = []
     source_info = "Live API Feed"
     try:
@@ -76,7 +68,6 @@ def main() -> None:
 
     try:
         for row in records:
-            # Duplicate check by title and lane to prevent redundant processing
             existing = (
                 db.query(Document)
                 .filter(

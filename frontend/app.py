@@ -3,16 +3,12 @@ import requests
 import os
 
 
-# ── Config ────────────────────────────────────────────────────────────────────
 def load_config(key, default):
-    # Priority 1: Environment Variables (e.g., Docker Compose)
     if key in os.environ:
         return os.environ[key]
-    # Priority 2: Streamlit Secrets (e.g., Streamlit Cloud or local secrets.toml)
     try:
         return st.secrets.get(key, default)
     except Exception:
-        # Fallback to hardcoded default if secrets are unavailable
         return default
 
 
@@ -31,7 +27,6 @@ LANES = {
     "Regulation": "regulation",
 }
 
-# ── Page setup ────────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="US Market Advisory",
     page_icon="📈",
@@ -43,7 +38,6 @@ st.caption(
     "Ask questions about US equities, macroeconomic indicators, and financial regulations."
 )
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.header("Settings")
     lane_label = st.selectbox("Data lane", list(LANES.keys()))
@@ -57,7 +51,6 @@ with st.sidebar:
     st.markdown("- **Macro** — CPI, GDP, interest rates (FRED)")
     st.markdown("- **Regulation** — SEC filings, Federal Register")
 
-# ── Chat history ──────────────────────────────────────────────────────────────
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -75,7 +68,6 @@ for msg in st.session_state.messages:
         if msg.get("metadata") and show_metadata:
             st.json(msg["metadata"])
 
-# ── Input ─────────────────────────────────────────────────────────────────────
 query = st.chat_input("Ask about US markets, macro data, or regulations...")
 
 if query:
