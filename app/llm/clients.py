@@ -1,7 +1,9 @@
+from functools import lru_cache
 from openai import OpenAI, AzureOpenAI
 from app.core.config import settings
 
 
+@lru_cache()
 def get_chat_client() -> OpenAI:
     """
     Initializes the OpenAI client for chat models (e.g., GitHub Models).
@@ -12,6 +14,7 @@ def get_chat_client() -> OpenAI:
     )
 
 
+@lru_cache()
 def get_embedding_client() -> AzureOpenAI:
     """
     Initializes the Azure OpenAI client for embedding models.

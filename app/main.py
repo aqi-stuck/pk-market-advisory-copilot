@@ -26,6 +26,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+@app.get("/")
+async def root():
+    return {
+        "message": f"Welcome to {settings.PROJECT_NAME}",
+        "version": settings.VERSION,
+        "docs": "/docs"
+    }
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     start = time.perf_counter()

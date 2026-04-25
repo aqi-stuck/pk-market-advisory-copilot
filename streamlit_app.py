@@ -9,10 +9,13 @@ st.markdown("Ask questions about US equities, macroeconomics, or regulations.")
 
 # Configuration - these should be set in Streamlit Cloud Secrets
 # Use st.secrets to securely access variables from .streamlit/secrets.toml
-API_BASE_URL = st.secrets.get(
-    "API_BASE_URL", "https://your-render-app-name.onrender.com"
-)
-API_KEY = st.secrets.get("API_KEY", "")
+try:
+    API_BASE_URL = st.secrets.get("API_BASE_URL", "")
+    API_KEY = st.secrets.get("API_KEY", "")
+except Exception:
+    # Fallback if st.secrets is not initialized (e.g., missing secrets.toml or Cloud config)
+    API_BASE_URL = ""
+    API_KEY = ""
 
 # If API_KEY is not set in secrets, allow user to input it in sidebar
 if not API_KEY:
@@ -45,10 +48,7 @@ if prompt := st.chat_input("What would you like to know?"):
     with st.chat_message("assistant"):
         with st.spinner("Analyzing market data..."):
             try:
-                if (
-                    not API_KEY
-                    or API_BASE_URL == "https://your-render-app-name.onrender.com"
-                ):
+                if not API_KEY or not API_BASE_URL:
                     st.error(
                         "Configuration Missing: Please provide a valid API URL and Bearer Token in the sidebar or secrets.toml."
                     )
