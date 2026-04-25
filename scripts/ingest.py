@@ -73,6 +73,18 @@ def main() -> None:
 
     try:
         for row in records:
+            # Duplicate check by title and lane to prevent redundant processing
+            existing = (
+                db.query(Document)
+                .filter(
+                    Document.title == row.get("title"),
+                    Document.lane == row.get("lane", "macro"),
+                )
+                .first()
+            )
+            if existing:
+                continue
+
             doc = Document(
                 source_name=row.get("source_name", "unknown"),
                 source_url=row.get("source_url"),

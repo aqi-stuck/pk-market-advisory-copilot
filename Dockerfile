@@ -12,7 +12,7 @@ WORKDIR /app
 RUN pip install --upgrade pip
 
 # Alias python to python3 for a smoother developer experience
-RUN ln -s /usr/local/bin/python3 /usr/local/bin/python
+RUN ln -sf /usr/local/bin/python3 /usr/local/bin/python
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt

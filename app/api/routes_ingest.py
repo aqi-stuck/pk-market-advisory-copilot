@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -37,13 +37,15 @@ async def ingest_endpoint(
     db.flush()
 
     docs = []
-    for item in (request.documents or []):
+    for item in request.documents or []:
         # Basic duplicate check by title and lane
-        existing = db.query(Document).filter(
-            Document.title == item.get("title"),
-            Document.lane == request.lane
-        ).first()
-        if existing: continue
+        existing = (
+            db.query(Document)
+            .filter(Document.title == item.get("title"), Document.lane == request.lane)
+            .first()
+        )
+        if existing:
+            continue
 
         doc = Document(
             lane=request.lane,
@@ -55,18 +57,37 @@ async def ingest_endpoint(
         db.add(doc)
         docs.append(doc)
     db.flush()
-    points=[]
+    points = []
     for doc in docs:
-        for i, chunk_str in enumerate(chunk_text(doc.raw_text or "",settings.CHUNK_SIZE,settings.CHUNK_OVERLAP)):
-            point_id =str(uuid.uuid4())
+        for i, chunk_str in enumerate(
+            chunk_text(doc.raw_text or "", settings.CHUNK_SIZE, settings.CHUNK_OVERLAP)
+        ):
+            point_id = str(uuid.uuid4())
             vector = embed_text(chunk_str)
-            db.add(Chunk(document_id=doc.id, chunk_index=i, chunk_text=chunk_str,
-                         qdrant_point_id=point_id, embedding_model=settings.AZURE_EMBEDDING_DEPLOYMENT))
-            points.append({"id": point_id, "vector": vector, "payload": {"text": chunk_str, "document_id": doc.id, "lane": doc.lane}})
+            db.add(
+                Chunk(
+                    document_id=doc.id,
+                    chunk_index=i,
+                    chunk_text=chunk_str,
+                    qdrant_point_id=point_id,
+                    embedding_model=settings.AZURE_EMBEDDING_DEPLOYMENT,
+                )
+            )
+            points.append(
+                {
+                    "id": point_id,
+                    "vector": vector,
+                    "payload": {
+                        "text": chunk_str,
+                        "document_id": doc.id,
+                        "lane": doc.lane,
+                    },
+                }
+            )
     upsert_points(points)
-    run.chunk_count=len(points)
+    run.chunk_count = len(points)
     run.status = "completed"
-    run.finished_at = datetime.utcnow()
+    run.finished_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(run)
 
