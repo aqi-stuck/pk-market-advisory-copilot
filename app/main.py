@@ -10,6 +10,7 @@ import time
 import logging
 from fastapi import Request
 from app.core.logging import setup_logging
+from app.mcp_server import mcp
 
 setup_logging()
 logger = logging.getLogger("app")
@@ -58,6 +59,7 @@ async def log_requests(request: Request, call_next):
 app.include_router(health_router, tags=["health"])
 app.include_router(query_router, prefix=settings.API_V1_STR, tags=["query"])
 app.include_router(ingest_router, prefix=settings.API_V1_STR, tags=["ingest"])
+app.mount("/mcp", mcp.asgi())
 
 if __name__ == "__main__":
     import uvicorn
