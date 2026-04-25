@@ -1,4 +1,3 @@
-from pydantic import field_validator
 from pydantic_settings import BaseSettings
 from pydantic_settings import SettingsConfigDict
 from typing import Optional
@@ -18,13 +17,6 @@ class Settings(BaseSettings):
 
     # Database settings
     DATABASE_URL: str = "postgresql://user:password@localhost:5432/market_advisory_db"
-
-    @field_validator("DATABASE_URL", mode="before")
-    @classmethod
-    def fix_postgres_prefix(cls, v: str) -> str:
-        if v and v.startswith("postgres://"):
-            return v.replace("postgres://", "postgresql://", 1)
-        return v
 
     # Qdrant settings
     QDRANT_URL: str = "http://localhost:6333"

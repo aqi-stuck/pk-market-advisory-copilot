@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: market-advisory-api
+    runtime: docker
+    repo: https://github.com/YOUR_USERNAME/YOUR_REPO # Update this to your repo URL
+    plan: free
+    region: oregon # Choose your preferred region
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: market-advisory-db
+          property: connectionString
+      - key: ENVIRONMENT
+        value: production
+      - key: PORT
+        value: 8000
+      - key: QDRANT_URL
+        sync: false # Set this in the Render Dashboard
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: AZURE_OPENAI_API_KEY
+        sync: false
+    startCommand: "sh -c 'alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT'"
+
+databases:
+  - name: market-advisory-db
+    databaseName: market_advisory
+    user: market_user
+    plan: free
+    region: oregon
