@@ -65,6 +65,7 @@ services:
     environment:
       - API_URL=http://api:8000
       - API_KEY=${API_KEY}
+      - PYTHONUNBUFFERED=1
     volumes:
       - ./frontend:/app
     depends_on:
