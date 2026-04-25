@@ -1,8 +1,8 @@
 # US Market Advisory RAG System
 
-A production-grade Retrieval-Augmented Generation (RAG) API that answers natural language questions about US financial markets — equities, macroeconomic indicators, and financial regulations — grounded in real source documents with full citations.
+A production-grade Retrieval-Augmented Generation (RAG) API and **MCP Server** that answers natural language questions about US financial markets — equities, macroeconomic indicators, and financial regulations — grounded in real source documents with full citations.
 
-Built with FastAPI, Qdrant, PostgreSQL, and Azure OpenAI.
+Built with FastAPI, MCP, Qdrant, PostgreSQL, and Azure OpenAI.
 
 ---
 
@@ -14,7 +14,7 @@ Ask questions like:
 - *"How has CPI trended over the last quarter?"*
 - *"What are the latest SEC disclosure requirements?"*
 
-The system retrieves the most relevant document chunks from a vector store, reranks them for precision, generates a grounded answer using GPT-4o, and returns source citations — all in a single API call.
+The system retrieves the most relevant document chunks from a vector store, reranks them for precision, generates a grounded answer using GPT-4o, and returns source citations. You can interact via a standard REST API, a dedicated Streamlit UI, or directly via MCP-compatible clients like Claude Desktop.
 
 ---
 
