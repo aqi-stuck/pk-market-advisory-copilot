@@ -1,16 +1,7 @@
 from typing import Any, Dict, List
 
-from openai import OpenAI
-
 from app.core.config import settings
-
-
-def _get_client() -> OpenAI:
-    """Initializes the OpenAI client for GitHub Models."""
-    return OpenAI(
-        base_url="https://models.inference.ai.azure.com",
-        api_key=settings.GITHUB_TOKEN,
-    )
+from app.llm.clients import get_chat_client
 
 
 def rerank_chunks(
@@ -27,8 +18,10 @@ def rerank_chunks(
         return chunks
 
     scored = []
+    client = get_chat_client()
     try:
-        client = _get_client()
+        # If client initialization fails, it will be caught here
+        pass
     except Exception:
         return chunks  # Fallback to original order if client fails
 
@@ -39,7 +32,7 @@ def rerank_chunks(
             continue
         try:
             response = client.chat.completions.create(
-                model=settings.AZURE_CHAT_DEPLOYMENT,
+                model=settings.CHAT_MODEL_NAME,
                 messages=[
                     {
                         "role": "system",

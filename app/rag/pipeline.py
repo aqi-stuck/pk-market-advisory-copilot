@@ -1,27 +1,16 @@
 from typing import Any, Dict, List, Optional, Tuple
 
-from openai import OpenAI
-
 from app.core.config import settings
 from app.rag.guardrails import check_query
 from app.rag.reranker import rerank_chunks
 from app.rag.retriever import retrieve_chunks
+from app.llm.clients import get_chat_client
 
 SYSTEM_PROMPT = """You are a professional US financial markets analyst assistant.
 Answer the user's question using ONLY the provided market context below.
 Be concise, factual, and cite specific data points when available.
 If the context does not contain enough information, say so clearly.
 Do not speculate beyond what the context supports."""
-
-
-def _get_client() -> OpenAI:
-    """
-    Initializes the OpenAI client for GitHub Models.
-    """
-    return OpenAI(
-        base_url="https://models.inference.ai.azure.com",
-        api_key=settings.GITHUB_TOKEN,
-    )
 
 
 def run_pipeline(
@@ -59,10 +48,10 @@ def run_pipeline(
     context = "\n\n".join(context_parts)
 
     # 5. Generate answer
+    client = get_chat_client()
     try:
-        client = _get_client()
         response = client.chat.completions.create(
-            model=settings.AZURE_CHAT_DEPLOYMENT,
+            model=settings.CHAT_MODEL_NAME,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {

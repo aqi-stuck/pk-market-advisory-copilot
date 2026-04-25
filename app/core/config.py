@@ -12,8 +12,11 @@ class Settings(BaseSettings):
     AZURE_OPENAI_ENDPOINT: Optional[str] = None
     AZURE_OPENAI_API_VERSION: str = "2024-02-01"
     AZURE_EMBEDDING_DEPLOYMENT: str = "text-embedding-3-small"
+    GITHUB_MODELS_BASE_URL: str = (
+        "https://models.inference.ai.azure.com"  # Endpoint for GitHub Models
+    )
     EMBEDDING_DIMENSIONS: int = 1536
-    AZURE_CHAT_DEPLOYMENT: str = "gpt-4o-mini"
+    CHAT_MODEL_NAME: str = "gpt-4o-mini"  # Model name for chat (from GitHub Models)
     GITHUB_TOKEN: Optional[str] = None
 
     # Database settings
