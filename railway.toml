@@ -4,9 +4,12 @@ dockerfilePath = "Dockerfile"
 
 [variables]
 DATABASE_URL = "${{Postgres.DATABASE_URL}}"
+QDRANT_URL = "${{Qdrant.QDRANT_URL}}"
+ENVIRONMENT = "production"
 
 [deploy]
 startCommand = "/bin/sh -c 'uvicorn app.main:app --host 0.0.0.0 --port $PORT'"
+startCommand = "/bin/sh -c 'alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT'"
 healthcheckPath = "/health"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"
