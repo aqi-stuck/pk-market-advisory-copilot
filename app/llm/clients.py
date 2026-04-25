@@ -14,7 +14,7 @@ def get_chat_client() -> OpenAI:
     )
 
 
-@lru_cache()
+@lru_cache()  # This cache is for the embedding client, not the chat client
 def get_embedding_client() -> AzureOpenAI:
     """
     Initializes the Azure OpenAI client for embedding models.

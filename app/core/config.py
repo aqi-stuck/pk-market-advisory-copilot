@@ -16,7 +16,9 @@ class Settings(BaseSettings):
         "https://models.inference.ai.azure.com"  # Endpoint for GitHub Models
     )
     EMBEDDING_DIMENSIONS: int = 1536
-    CHAT_MODEL_NAME: str = "gpt-4o-mini"  # Model name for chat (from GitHub Models)
+    GITHUB_CHAT_MODEL_NAME: str = (
+        "gpt-4o-mini"  # Model name for chat (from GitHub Models)
+    )
     GITHUB_TOKEN: Optional[str] = None
 
     # Database settings

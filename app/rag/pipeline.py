@@ -31,6 +31,13 @@ def run_pipeline(
     # 2. Retrieve
     chunks = retrieve_chunks(query=query, top_k=top_k, lane_hint=lane_hint)
     retrieved_k = len(chunks)
+    try:
+        chunks = retrieve_chunks(query=query, top_k=top_k, lane_hint=lane_hint)
+        retrieved_k = len(chunks)
+        if not chunks:
+            return "No relevant market context was found for your query.", [], 0, 0
+    except Exception as e:
+        return f"Retrieval failed: {str(e)}", [], 0, 0
 
     if not chunks:
         return "No relevant market context was found for your query.", [], 0, 0
@@ -38,6 +45,13 @@ def run_pipeline(
     # 3. Rerank
     reranked = rerank_chunks(query=query, chunks=chunks, top_k=rerank_k)
     reranked_k = len(reranked)
+    try:
+        reranked = rerank_chunks(query=query, chunks=chunks, top_k=rerank_k)
+        reranked_k = len(reranked)
+    except Exception as e:
+        # Fallback to original chunks if reranking crashes unexpectedly
+        reranked = chunks[:rerank_k]
+        reranked_k = len(reranked)
 
     # 4. Build context
     context_parts = []
@@ -51,7 +65,7 @@ def run_pipeline(
     try:
         client = get_chat_client()
         response = client.chat.completions.create(
-            model=settings.CHAT_MODEL_NAME,
+            model=settings.GITHUB_CHAT_MODEL_NAME,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {
