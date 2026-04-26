@@ -27,6 +27,40 @@ def parse_datetime(value: str | None):
 def fetch_external_market_data() -> list:
     fetched_docs = []
 
+    # 1. Macro Data (FRED)
+    try:
+        fred_key = getattr(settings, "FRED_API_KEY", None)
+        if fred_key:
+            series_map = {
+                "GDP": "Gross Domestic Product",
+                "CPIAUCSL": "Consumer Price Index (Inflation)",
+                "UNRATE": "Unemployment Rate",
+                "FEDFUNDS": "Effective Federal Funds Rate",
+            }
+            for series_id, label in series_map.items():
+                url = f"https://api.stlouisfed.org/fred/series/observations?series_id={series_id}&api_key={fred_key}&file_type=json&limit=1&sort_order=desc"
+                r = requests.get(url, timeout=10)
+                if r.status_code == 200:
+                    obs = r.json().get("observations", [])
+                    if obs:
+                        latest = obs[0]
+                        fetched_docs.append(
+                            {
+                                "source_name": "FRED",
+                                "source_url": f"https://fred.stlouisfed.org/series/{series_id}",
+                                "title": f"Macro Indicator: {label} - {latest['date']}",
+                                "lane": "macro",
+                                "raw_text": f"The latest value for {label} is {latest['value']} as of {latest['date']}.",
+                                "published_at": latest["date"],
+                            }
+                        )
+            logger.info(f"Fetched {len(series_map)} macro indicators from FRED.")
+        else:
+            logger.warning("FRED_API_KEY not set. Skipping live macro fetch.")
+    except Exception as e:
+        logger.error(f"FRED fetch failed: {e}")
+
+    # 2. Regulatory Data
     try:
         fed_reg_url = "https://www.federalregister.gov/api/v1/documents.json?conditions[agencies][]=securities-and-exchange-commission&per_page=5"
         response = requests.get(fed_reg_url, timeout=10)
@@ -50,6 +84,7 @@ def fetch_external_market_data() -> list:
     except Exception as e:
         logger.error(f"Failed to fetch regulatory data: {e}")
 
+    # 3. Stock Data
     try:
         tickers = ["AAPL.US", "MSFT.US", "SPY.US", "QQQ.US", "DIA.US"]
         for ticker in tickers:

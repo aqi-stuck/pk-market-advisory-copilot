@@ -17,19 +17,25 @@ class Settings(BaseSettings):
     GITHUB_CHAT_MODEL_NAME: str = "gpt-4o-mini"
     GITHUB_TOKEN: Optional[str] = None
     DATABASE_URL: str = "postgresql://user:password@postgres:5432/market_advisory_db"
+    FRED_API_KEY: Optional[str] = None
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
     def validate_db_url(cls, v: Any) -> Any:
         if isinstance(v, str):
-            return v.strip().replace("postgres://", "postgresql://", 1)
+            return (
+                v.strip()
+                .replace("postgres://", "postgresql://", 1)
+                .replace("\n", "")
+                .replace("\r", "")
+            )
         return v
 
     @field_validator("QDRANT_URL", mode="before")
     @classmethod
     def validate_qdrant_url(cls, v: Any) -> Any:
         if isinstance(v, str):
-            return v.strip().rstrip("/")
+            return v.strip().rstrip("/").replace("\n", "").replace("\r", "")
         return v
 
     QDRANT_URL: str = "http://qdrant:6333"
