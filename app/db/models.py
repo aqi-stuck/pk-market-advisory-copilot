@@ -10,9 +10,9 @@ class Document(Base):
     __tablename__ = "documents"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    source_name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
-    source_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    source_name: Mapped[str] = mapped_column(Text, nullable=False, index=True)
+    source_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    title: Mapped[str] = mapped_column(Text, nullable=False)
     lane: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     published_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     raw_text: Mapped[str | None] = mapped_column(Text, nullable=True)
