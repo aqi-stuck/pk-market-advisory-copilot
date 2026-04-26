@@ -49,8 +49,9 @@ async def ingest_endpoint(
 
         doc = Document(
             lane=request.lane,
-            source_name=item.get("source_name"),
-            title=item.get("title"),
+            source_name=(item.get("source_name") or "unknown")[:255],
+            source_url=(item.get("source_url") or "")[:512] or None,
+            title=(item.get("title") or "untitled")[:255],
             raw_text=item.get("raw_text"),
             extra_metadata={"ingestion_run_id": run.id},
         )
