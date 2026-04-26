@@ -25,7 +25,7 @@ services:
       - ./logs:/app/logs
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health || exit 1"]
+      test: ["CMD-SHELL", "curl -s http://127.0.0.1:8000/health | grep -q '\"status\":\"ok\"' || exit 1"]
       interval: 20s
       timeout: 10s
       retries: 5

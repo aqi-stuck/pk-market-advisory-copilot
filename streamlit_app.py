@@ -64,7 +64,7 @@ if prompt := st.chat_input("What would you like to know?"):
                     f"{API_BASE_URL}/v1/query",
                     json=payload,
                     headers=headers,
-                    timeout=90,
+                    timeout=120,
                 )
                 response.raise_for_status()
                 data = response.json()
