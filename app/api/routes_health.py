@@ -1,6 +1,6 @@
 import logging
 import httpx
-from fastapi import APIRouter
+from fastapi import APIRouter, Response, status
 from pydantic import BaseModel
 from typing import Optional
 from app.core.config import settings
@@ -18,7 +18,7 @@ class HealthResponse(BaseModel):
 
 
 @router.get("/health", response_model=HealthResponse)
-async def health_check():
+async def health_check(response: Response):
     db_status = "ok"
     vectorstore_status = "ok"
     error_details = {}
@@ -55,6 +55,11 @@ async def health_check():
         "errors": error_details if error_details else None,
     }
 
-    status = "ok" if db_status == "ok" and vectorstore_status == "ok" else "degraded"
+    if db_status == "ok" and vectorstore_status == "ok":
+        status_val = "ok"
+    else:
+        status_val = "degraded"
+        # Return 503 so Docker health check (curl -f) correctly identifies failure
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
 
-    return HealthResponse(status=status, version=settings.VERSION, details=details)
+    return HealthResponse(status=status_val, version=settings.VERSION, details=details)
