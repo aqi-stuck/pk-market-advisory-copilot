@@ -58,6 +58,9 @@ async def health_check(response: Response):
     status_val = (
         "ok" if db_status == "ok" and vectorstore_status == "ok" else "degraded"
     )
+    if status_val == "degraded":
+        logger.warning(f"Health check status: {status_val}. Details: {error_details}")
+
     # We return 200 even if degraded to prevent Docker from perpetually restarting the container during boot
 
     return HealthResponse(status=status_val, version=settings.VERSION, details=details)
