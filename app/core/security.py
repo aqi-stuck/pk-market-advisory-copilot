@@ -27,8 +27,9 @@ def get_api_key(
             detail="Invalid API key",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    if not credentials or credentials.credentials != settings.API_KEY:
-    if not credentials or not secrets.compare_digest(credentials.credentials, settings.API_KEY):
+    if not credentials or not secrets.compare_digest(
+        credentials.credentials, settings.API_KEY
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid API key",

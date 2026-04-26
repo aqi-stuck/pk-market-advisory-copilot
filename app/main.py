@@ -7,8 +7,10 @@ from app.core.config import settings
 from app.db.session import Base, engine
 from app.db import models
 import time
+from app.core.logging import setup_logging
 import logging
-from fastapi import Reques
+from fastapi import Request
+
 setup_logging()
 logger = logging.getLogger("app")
 
