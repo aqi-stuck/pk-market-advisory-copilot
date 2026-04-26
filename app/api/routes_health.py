@@ -40,10 +40,10 @@ async def health_check(response: Response):
             headers["api-key"] = settings.QDRANT_API_KEY
 
         async with httpx.AsyncClient(timeout=3.0) as client:
-            response = await client.get(f"{qdrant_url}/healthz", headers=headers)
-            if response.status_code != 200:
+            q_resp = await client.get(f"{qdrant_url}/healthz", headers=headers)
+            if q_resp.status_code != 200:
                 vectorstore_status = "error"
-                error_details["vectorstore"] = f"Qdrant status {response.status_code}"
+                error_details["vectorstore"] = f"Qdrant status {q_resp.status_code}"
     except Exception as e:
         vectorstore_status = "error"
         error_details["vectorstore"] = f"Check failed: {str(e)}"
