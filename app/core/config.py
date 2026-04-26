@@ -17,7 +17,6 @@ class Settings(BaseSettings):
     GITHUB_CHAT_MODEL_NAME: str = "gpt-4o-mini"
     GITHUB_TOKEN: Optional[str] = None
     DATABASE_URL: str = "postgresql://user:password@postgres:5432/market_advisory_db"
-    FRED_API_KEY: Optional[str] = None
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod
