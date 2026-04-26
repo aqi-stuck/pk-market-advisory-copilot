@@ -22,16 +22,14 @@ class Settings(BaseSettings):
     @classmethod
     def validate_db_url(cls, v: Any) -> Any:
         if isinstance(v, str):
-            v = v.strip()
-            if v.startswith("postgres://"):
-                v = v.replace("postgres://", "postgresql://", 1)
+            return v.strip().replace("postgres://", "postgresql://", 1)
         return v
 
     @field_validator("QDRANT_URL", mode="before")
     @classmethod
     def validate_qdrant_url(cls, v: Any) -> Any:
         if isinstance(v, str):
-            return v.strip()
+            return v.strip().rstrip("/")
         return v
 
     QDRANT_URL: str = "http://qdrant:6333"

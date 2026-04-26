@@ -24,11 +24,11 @@ services:
       - ./logs:/app/logs
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health || exit 1"]
-      interval: 15s
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 20s
       timeout: 15s
-      retries: 5
-      start_period: 120s # Increased to allow more time for migrations and Uvicorn startup
+      retries: 10
+      start_period: 60s
 
   postgres:
     image: postgres:15-alpine

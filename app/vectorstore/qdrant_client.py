@@ -11,9 +11,7 @@ QDRANT_COLLECTION = "market_chunks"
 
 
 def get_qdrant_client() -> QdrantClient:
-    return QdrantClient(
-        url=settings.QDRANT_URL.strip(), api_key=settings.QDRANT_API_KEY
-    )
+    return QdrantClient(url=settings.QDRANT_URL, api_key=settings.QDRANT_API_KEY)
 
 
 def ensure_collection(vector_size: int = 1536) -> None:
