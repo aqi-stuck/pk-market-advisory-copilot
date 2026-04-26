@@ -1,10 +1,12 @@
+import logging
+import httpx
 from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional
 from app.core.config import settings
 from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
-import requests
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -26,28 +28,31 @@ async def health_check():
 
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
-    except Exception:
-        error_details["database"] = "Could not connect to PostgreSQL"
+    except Exception as e:
+        logger.error(f"Health check: Database connection failed: {e}")
+        error_details["database"] = f"Connection failed: {str(e)}"
         db_status = "error"
 
     try:
-        qdrant_url = settings.QDRANT_URL.rstrip("/")
-        if not qdrant_url.startswith("http"):
-            protocol = "https" if ".qdrant.io" in qdrant_url else "http"
-            qdrant_url = f"{protocol}://{qdrant_url}"
-
+        qdrant_url = settings.QDRANT_URL.strip().rstrip("/")
         headers = {}
         if settings.QDRANT_API_KEY:
             headers["api-key"] = settings.QDRANT_API_KEY
 
-        response = requests.get(f"{qdrant_url}/healthz", headers=headers, timeout=3)
-        if response.status_code != 200:
-            vectorstore_status = "error"
-            error_details["vectorstore"] = (
-                f"Qdrant returned status {response.status_code}"
-            )
+        with httpx.Client(timeout=3.0) as client:
+            response = client.get(f"{qdrant_url}/healthz", headers=headers)
+            if response.status_code != 200:
+                vectorstore_status = "error"
+                error_details["vectorstore"] = (
+                    f"Qdrant returned status {response.status_code}"
+                )
+    except httpx.ConnectError as e:
+        logger.error(f"Health check: Qdrant connection error (DNS or Refused): {e}")
+        error_details["vectorstore"] = "Connection refused or hostname unresolvable"
+        vectorstore_status = "error"
     except Exception as e:
-        error_details["vectorstore"] = str(e)
+        logger.error(f"Health check: Qdrant check failed: {e}")
+        error_details["vectorstore"] = f"Check failed: {str(e)}"
         vectorstore_status = "error"
 
     details = {
