@@ -10,11 +10,13 @@ st.markdown("Ask questions about US equities, macroeconomics, or regulations.")
 # Configuration - these should be set in Streamlit Cloud Secrets
 # Use st.secrets to securely access variables from .streamlit/secrets.toml
 try:
-    API_BASE_URL = st.secrets.get("API_BASE_URL", "")
+    API_BASE_URL = st.secrets.get(
+        "API_BASE_URL", os.environ.get("API_URL", "http://localhost:8000")
+    )
     API_KEY = st.secrets.get("API_KEY", "")
 except Exception:
     # Fallback if st.secrets is not initialized (e.g., missing secrets.toml or Cloud config)
-    API_BASE_URL = ""
+    API_BASE_URL = os.environ.get("API_URL", "http://localhost:8000")
     API_KEY = ""
 
 # If API_KEY is not set in secrets, allow user to input it in sidebar
