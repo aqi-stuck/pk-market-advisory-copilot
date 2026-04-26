@@ -39,7 +39,7 @@ async def health_check(response: Response):
         if settings.QDRANT_API_KEY:
             headers["api-key"] = settings.QDRANT_API_KEY
 
-        async with httpx.AsyncClient(timeout=5.0) as client:
+        async with httpx.AsyncClient(timeout=10.0) as client:
             q_resp = await client.get(f"{qdrant_url}/healthz", headers=headers)
             if q_resp.status_code != 200:
                 vectorstore_status = "error"
