@@ -53,8 +53,13 @@ def fetch_external_market_data() -> list:
     try:
         fred_api_key = getattr(settings, "FRED_API_KEY", None)
         if fred_api_key:
-            series_to_fetch = ["GDP", "CPIAUCSL", "FEDFUNDS", "UNRATE"]
-            for series_id in series_to_fetch:
+            series_map = {
+                "GDP": "Gross Domestic Product (GDP)",
+                "CPIAUCSL": "Consumer Price Index (Inflation)",
+                "FEDFUNDS": "Effective Federal Funds Rate",
+                "UNRATE": "Unemployment Rate",
+            }
+            for series_id, series_name in series_map.items():
                 fred_url = f"https://api.stlouisfed.org/fred/series/observations?series_id={series_id}&api_key={fred_api_key}&file_type=json&limit=1&sort_order=desc"
                 resp = requests.get(fred_url, timeout=10)
                 if resp.status_code == 200:
@@ -65,15 +70,13 @@ def fetch_external_market_data() -> list:
                             {
                                 "source_name": "FRED",
                                 "source_url": f"https://fred.stlouisfed.org/series/{series_id}",
-                                "title": f"Macroeconomic Indicator: {series_id}",
+                                "title": f"Macroeconomic Indicator: {series_name} - {latest['date']}",
                                 "lane": "macro",
-                                "raw_text": f"The latest value for the macroeconomic indicator {series_id} is {latest['value']} as of {latest['date']}.",
+                                "raw_text": f"The latest value for {series_name} ({series_id}) is {latest['value']} as of {latest['date']}.",
                                 "published_at": latest["date"],
                             }
                         )
-            logger.info(
-                f"Successfully fetched {len(series_to_fetch)} series from FRED."
-            )
+            logger.info(f"Successfully fetched {len(series_map)} series from FRED.")
         else:
             logger.warning("FRED_API_KEY not found in settings. Skipping macro fetch.")
     except Exception as e:
@@ -93,7 +96,7 @@ def fetch_external_market_data() -> list:
                         {
                             "source_name": "Stooq",
                             "source_url": f"https://stooq.com/q/?s={ticker}",
-                            "title": f"Market Quote: {ticker}",
+                            "title": f"Market Quote: {ticker} - {s.get('date')}",
                             "lane": "stocks",
                             "raw_text": (
                                 f"Market data for {ticker}. "
