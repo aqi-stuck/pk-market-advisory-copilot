@@ -96,7 +96,7 @@ def fetch_external_market_data() -> list:
         tickers = ["AAPL.US", "MSFT.US", "SPY.US", "QQQ.US", "DIA.US"]
         for ticker in tickers:
             stooq_url = f"https://stooq.com/q/l/?s={ticker}&f=sd2t2ohlcv&h&e=json"
-            resp = requests.get(stooq_url, timeout=10)
+            resp = requests.get(stooq_url, timeout=20)
             if resp.status_code == 200:
                 data = resp.json()
                 symbols = data.get("symbols", [])
@@ -192,10 +192,12 @@ def main() -> None:
                 continue
 
             doc = Document(
-                source_name=row.get("source_name", "unknown"),
-                source_url=row.get("source_url"),
-                title=title,
-                lane=row.get("lane", "macro"),
+                source_name=row.get("source_name", "unknown")[:255],
+                source_url=(
+                    row.get("source_url")[:512] if row.get("source_url") else None
+                ),
+                title=title[:255],
+                lane=row.get("lane", "macro")[:50],
                 published_at=parse_datetime(row.get("published_at")),
                 raw_text=row.get("raw_text", ""),
                 extra_metadata={"ingestion_run_id": run.id},
