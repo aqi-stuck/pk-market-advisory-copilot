@@ -29,6 +29,8 @@ if not API_KEY:
 else:
     st.sidebar.success("API Key loaded from secrets.")
 
+top_k = st.sidebar.slider("Results to retrieve", min_value=1, max_value=20, value=8)
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
@@ -57,7 +59,7 @@ if prompt := st.chat_input("What would you like to know?"):
                     st.stop()  # Stop execution if critical config is missing
 
                 headers = {"Authorization": f"Bearer {API_KEY}"}
-                payload = {"query": prompt, "top_k": 5}
+                payload = {"query": prompt, "top_k": top_k}
                 response = requests.post(
                     f"{API_BASE_URL}/v1/query",
                     json=payload,
