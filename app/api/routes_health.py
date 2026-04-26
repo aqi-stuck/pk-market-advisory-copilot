@@ -39,7 +39,7 @@ async def health_check(response: Response):
         if settings.QDRANT_API_KEY:
             headers["api-key"] = settings.QDRANT_API_KEY
 
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=5.0, follow_redirects=True) as client:
             q_resp = await client.get(f"{qdrant_url}/healthz", headers=headers)
             if q_resp.status_code != 200:
                 vectorstore_status = "error"
@@ -62,5 +62,4 @@ async def health_check(response: Response):
         logger.warning(f"Health check status: {status_val}. Details: {error_details}")
 
     # We return 200 even if degraded to prevent Docker from perpetually restarting the container during boot
-
     return HealthResponse(status=status_val, version=settings.VERSION, details=details)
