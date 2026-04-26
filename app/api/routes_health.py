@@ -39,26 +39,15 @@ async def health_check():
         if settings.QDRANT_API_KEY:
             headers["api-key"] = settings.QDRANT_API_KEY
 
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            try:
-                response = await client.get(f"{qdrant_url}/healthz", headers=headers)
-                if response.status_code != 200:
-                    vectorstore_status = "error"
-                    error_details["vectorstore"] = (
-                        f"Qdrant returned status {response.status_code}"
-                    )
-            except (httpx.ConnectError, httpx.ConnectTimeout) as e:
+        async with httpx.AsyncClient(timeout=3.0) as client:
+            response = await client.get(f"{qdrant_url}/healthz", headers=headers)
+            if response.status_code != 200:
                 vectorstore_status = "error"
-                error_details["vectorstore"] = f"Connection failed: {str(e)}"
-                logger.warning(f"Health check: Vectorstore connection issue: {e}")
-    except httpx.ConnectError as e:
-        logger.error(f"Health check: Qdrant connection error (DNS or Refused): {e}")
-        error_details["vectorstore"] = "Connection refused or hostname unresolvable"
-        vectorstore_status = "error"
+                error_details["vectorstore"] = f"Qdrant status {response.status_code}"
     except Exception as e:
-        logger.error(f"Health check: Qdrant check failed: {e}")
-        error_details["vectorstore"] = f"Check failed: {str(e)}"
         vectorstore_status = "error"
+        error_details["vectorstore"] = f"Check failed: {str(e)}"
+        logger.warning(f"Health check: Vectorstore connectivity issue: {e}")
 
     details = {
         "database": db_status,
