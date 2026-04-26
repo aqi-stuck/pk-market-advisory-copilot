@@ -12,10 +12,6 @@ security = HTTPBearer(auto_error=False)
 def get_api_key(
     credentials: Optional[HTTPAuthorizationCredentials] = Security(security),
 ) -> str:
-    """
-    If API_KEY is unset, allow requests only in development mode.
-    If API_KEY is set, require matching Bearer token.
-    """
     environment = str(getattr(settings, "ENVIRONMENT", "")).lower()
 
     if not settings.API_KEY:

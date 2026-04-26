@@ -20,6 +20,7 @@ class Settings(BaseSettings):
         "gpt-4o-mini"  # Model name for chat (from GitHub Models)
     )
     GITHUB_TOKEN: Optional[str] = None
+    FRED_API_KEY: Optional[str] = None
 
     # Database settings
     DATABASE_URL: str = "postgresql://user:password@localhost:5432/market_advisory_db"

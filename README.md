@@ -6,6 +6,12 @@ Built with FastAPI, Qdrant, PostgreSQL, and Azure OpenAI.
 
 ---
 
+## Project Evolution
+
+This project originally targeted the Pakistan Stock Exchange (PSX). However, due to significant challenges in sourcing high-quality, granular, and structured financial data for that region, the project was pivoted to the US market. The abundance of data from the SEC, FRED, and Stooq allowed for the implementation of the high-precision RAG and reranking logic required for a production-grade system.
+
+---
+
 ## What It Does
 
 Ask questions like:
@@ -102,6 +108,12 @@ POST /v1/query
 ├── requirements.txt
 └── .env.example
 ```
+
+---
+
+## Deployment
+
+The system is configured for live deployment on **Render**. The API and Streamlit frontend are containerized and connected via internal networking, with PostgreSQL and Qdrant acting as the persistent data layers.
 
 ---
 
