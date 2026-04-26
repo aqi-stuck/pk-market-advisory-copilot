@@ -1,9 +1,6 @@
 import streamlit as st
 import requests
 import os
-import asyncio
-from mcp.client.session import ClientSession
-from mcp.client.sse import sse_client
 
 
 def load_config(key, default):
@@ -17,23 +14,6 @@ def load_config(key, default):
 
 API_URL = load_config("API_URL", "http://localhost:8000")
 API_KEY = load_config("API_KEY", "change-me")
-
-
-async def call_mcp_tool(query, lane):
-    # Connect to the MCP SSE endpoint we mounted in FastAPI
-    async with sse_client(f"{API_URL}/mcp/sse") as (read, write):
-        async with ClientSession(read, write) as session:
-            await session.initialize()
-
-            # List tools to ensure connectivity (Discovery)
-            tools = await session.list_tools()
-
-            # Call the specific tool defined in app/mcp_server.py
-            result = await session.call_tool(
-                "ask_market_expert", arguments={"query": query, "lane": lane}
-            )
-            return result.content[0].text
-
 
 HEADERS = {
     "Content-Type": "application/json",
@@ -60,7 +40,6 @@ st.caption(
 
 with st.sidebar:
     st.header("Settings")
-    protocol = st.radio("Communication Protocol", ["REST API", "MCP (Tool Use)"])
     lane_label = st.selectbox("Data lane", list(LANES.keys()))
     top_k = st.slider("Results to retrieve", min_value=1, max_value=20, value=8)
     show_citations = st.toggle("Show citations", value=True)
@@ -99,57 +78,46 @@ if query:
     with st.chat_message("assistant"):
         with st.spinner("Retrieving and generating answer..."):
             try:
-                if protocol == "MCP (Tool Use)":
-                    # Execute via MCP Protocol
-                    answer = asyncio.run(call_mcp_tool(query, LANES[lane_label]))
-                    st.markdown(answer)
-                    st.session_state.messages.append(
-                        {"role": "assistant", "content": answer}
-                    )
-                else:
-                    # Execute via Standard REST API
-                    response = requests.post(
-                        f"{API_URL}/v1/query",
-                        headers=HEADERS,
-                        json={
-                            "query": query,
-                            "lane_hint": LANES[lane_label],
-                            "top_k": top_k,
-                            "include_citations": show_citations,
-                        },
-                        timeout=60,
-                    )
-                    response.raise_for_status()
-                    data = response.json()
+                response = requests.post(
+                    f"{API_URL}/v1/query",
+                    headers=HEADERS,
+                    json={
+                        "query": query,
+                        "lane_hint": LANES[lane_label],
+                        "top_k": top_k,
+                        "include_citations": show_citations,
+                    },
+                    timeout=60,
+                )
+                response.raise_for_status()
+                data = response.json()
 
-                    answer = data.get("answer", "No answer returned.")
-                    citations = data.get("citations", [])
-                    metadata = data.get("metadata", {})
+                answer = data.get("answer", "No answer returned.")
+                citations = data.get("citations", [])
+                metadata = data.get("metadata", {})
 
-                    st.markdown(answer)
+                st.markdown(answer)
 
-                    if citations and show_citations:
-                        with st.expander(f"📚 {len(citations)} source(s)"):
-                            for c in citations:
-                                st.markdown(f"**{c['source_title']}**")
-                                if c["source_url"]:
-                                    st.markdown(
-                                        f"[{c['source_url']}]({c['source_url']})"
-                                    )
-                                st.caption(f"> {c['quote']}")
-                                st.divider()
+                if citations and show_citations:
+                    with st.expander(f"📚 {len(citations)} source(s)"):
+                        for c in citations:
+                            st.markdown(f"**{c['source_title']}**")
+                            if c["source_url"]:
+                                st.markdown(f"[{c['source_url']}]({c['source_url']})")
+                            st.caption(f"> {c['quote']}")
+                            st.divider()
 
-                    if show_metadata:
-                        st.json(metadata)
+                if show_metadata:
+                    st.json(metadata)
 
-                    st.session_state.messages.append(
-                        {
-                            "role": "assistant",
-                            "content": answer,
-                            "citations": citations if show_citations else [],
-                            "metadata": metadata,
-                        }
-                    )
+                st.session_state.messages.append(
+                    {
+                        "role": "assistant",
+                        "content": answer,
+                        "citations": citations if show_citations else [],
+                        "metadata": metadata,
+                    }
+                )
 
             except requests.exceptions.Timeout:
                 st.error("Request timed out. The model is taking too long — try again.")

@@ -8,15 +8,13 @@ from app.db.session import Base, engine
 from app.db import models
 import time
 import logging
-from fastapi import Request
-
+from fastapi import Reques
 setup_logging()
 logger = logging.getLogger("app")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Base.metadata.create_all(bind=engine)
     yield
 
 
