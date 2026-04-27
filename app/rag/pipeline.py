@@ -30,6 +30,22 @@ def _is_rate_limit_error(err: Exception) -> bool:
     return "rate limit" in msg or "ratelimit" in msg or "error code: 429" in msg
 
 
+def _is_connection_error(err: Exception) -> bool:
+    status_code = getattr(err, "status_code", None)
+    if status_code is not None:
+        return False
+
+    msg = str(err).lower()
+    error_type = err.__class__.__name__.lower()
+    return (
+        "connection error" in msg
+        or "timed out" in msg
+        or "timeout" in msg
+        or "apiconnectionerror" in error_type
+        or "apitimeouterror" in error_type
+    )
+
+
 def _build_model_candidates() -> List[str]:
     candidates = [settings.GITHUB_CHAT_MODEL_NAME]
     raw_fallbacks = settings.GITHUB_CHAT_FALLBACK_MODELS or ""
@@ -100,6 +116,7 @@ def run_pipeline(
         client = get_chat_client()
         model_candidates = _build_model_candidates()
         rate_limit_error: Optional[Exception] = None
+        connection_error: Optional[Exception] = None
 
         for model_name in model_candidates:
             try:
@@ -124,6 +141,9 @@ def run_pipeline(
                 if _is_rate_limit_error(e):
                     rate_limit_error = e
                     continue
+                if _is_connection_error(e):
+                    connection_error = e
+                    continue
                 raise
 
         if rate_limit_error is not None:
@@ -131,6 +151,11 @@ def run_pipeline(
             answer = (
                 "Answer generation is temporarily unavailable due to model rate limits. "
                 + _format_retry_hint(retry_seconds)
+            )
+        elif connection_error is not None:
+            answer = (
+                "Answer generation is temporarily unavailable due to an upstream model connection issue. "
+                "Please retry in a minute."
             )
         else:
             answer = "Answer generation failed unexpectedly."
