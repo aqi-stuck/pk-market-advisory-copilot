@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from typing import Optional
 from app.core.config import settings
 from sqlalchemy import text
-from app.db.models import IngestionRun
 from app.db.session import SessionLocal
 from app.vectorstore.qdrant_client import QDRANT_COLLECTION, get_qdrant_client
 
@@ -43,28 +42,38 @@ async def health_debug():
             text("SELECT COUNT(1) FROM query_logs")
         ).scalar_one()
 
-        latest_run = (
-            db.query(IngestionRun).order_by(IngestionRun.started_at.desc()).first()
-        )
-        payload["ingestion"]["latest"] = (
-            {
-                "id": latest_run.id,
-                "status": latest_run.status,
-                "lane": latest_run.lane,
-                "source_count": latest_run.source_count,
-                "chunk_count": latest_run.chunk_count,
-                "started_at": (
-                    latest_run.started_at.isoformat() if latest_run.started_at else None
-                ),
-                "finished_at": (
-                    latest_run.finished_at.isoformat()
-                    if latest_run.finished_at
-                    else None
-                ),
-            }
-            if latest_run
-            else None
-        )
+        # Read ingestion_runs in a schema-tolerant way so older DBs do not break this endpoint.
+        available_columns = db.execute(
+            text(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name = 'ingestion_runs'
+                """
+            )
+        ).fetchall()
+        column_names = {row[0] for row in available_columns}
+
+        base_cols = ["id", "lane", "started_at", "finished_at"]
+        optional_cols = ["status", "source_count", "chunk_count", "details"]
+        selected = [c for c in base_cols + optional_cols if c in column_names]
+
+        if selected:
+            query = text(
+                f"SELECT {', '.join(selected)} FROM ingestion_runs ORDER BY started_at DESC LIMIT 1"
+            )
+            latest_run = db.execute(query).mappings().first()
+            if latest_run:
+                latest_payload = dict(latest_run)
+                for dt_col in ["started_at", "finished_at"]:
+                    value = latest_payload.get(dt_col)
+                    if value is not None and hasattr(value, "isoformat"):
+                        latest_payload[dt_col] = value.isoformat()
+                payload["ingestion"]["latest"] = latest_payload
+            else:
+                payload["ingestion"]["latest"] = None
+        else:
+            payload["ingestion"]["latest"] = None
     except Exception as exc:
         payload["status"] = "degraded"
         payload["errors"]["database"] = str(exc)
